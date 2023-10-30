@@ -69,10 +69,9 @@ initApp();
 let listCards = [];
 
 function addToCart(index) {
-    if (listCards[index] == null) {
-        listCards[index] = products[index];
-        listCards[index].quantity = 1;
-    }
+    products[index].quantity = 1;
+    listCards.push(products[index])
+    addToLocalStorage()
     reloadCard();
 }
 
@@ -81,10 +80,9 @@ function reloadCard() {
     let count = 0;
     let totalPrice = 0;
     listCards.forEach((productList, indexList) => {
-        let numProduct = productList.price * productList.quantity;
-        totalPrice += numProduct;
+        totalPrice += productList.price * productList.quantity;
         count += productList.quantity;
-        if (productList != null) {
+        if (productList != "") {
             let productLi = document.createElement("li");
             productLi.innerHTML = `
             <div><img src="images/${productList.image}" alt=""></div>
@@ -99,15 +97,26 @@ function reloadCard() {
             listCard.appendChild(productLi);
         }
     });
-    total.innerText = totalPrice.toLocaleString();
+    total.innerText = totalPrice.toLocaleString("en-us");
     quantity.innerText = count;
 }
 
 function changeQuantity(index, quan) {
     if (quan == 0) {
-        delete listCards[index];
+        listCards.splice(index, 1)
+        window.localStorage.clear()
     } else {
         listCards[index].quantity = quan;
     }
+    addToLocalStorage()
     reloadCard();
+}
+
+function addToLocalStorage(){
+    window.localStorage.setItem("ProductsList" , JSON.stringify(listCards))
+}
+
+if(window.localStorage.getItem("ProductsList")){
+    listCards = JSON.parse(window.localStorage.getItem("ProductsList"))
+    reloadCard()
 }
